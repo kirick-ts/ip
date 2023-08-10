@@ -22,8 +22,7 @@
 		"mocha": "^10.2.0"
 	},
 	"scripts": {
-		"test": "mocha",
-		"dependencies": "echo '{\"type\":\"module\"}' > node_modules/ip-address/dist/esm/package.json"
+		"test": "mocha"
 	},
 	"repository": {
 		"type": "git",
