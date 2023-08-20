@@ -8,6 +8,8 @@ import {
 import IP from '../src/main.js';
 
 const BUFFER_127_0_0_1 = Buffer.from([ 127, 0, 0, 1 ]);
+const BUFFER_127_0_0_1_AS_IPV6 = Buffer.from([ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xFF, 0xFF, 127, 0, 0, 1 ]);
+const BUFFER_IPV6 = Buffer.from([ 0xFE, 0x80, 0xDE, 0xAD, 0, 0xBE, 0, 0xEF, 0, 0, 0, 0, 0, 0, 0, 1 ]);
 
 describe('Raw IPv4', () => {
 	describe('from string', () => {
@@ -67,7 +69,7 @@ describe('Prefixed IPv4', () => {
 	});
 
 	describe('from buffer', () => {
-		const ip = new IP(Buffer.from([ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xFF, 0xFF, 127, 0, 0, 1 ]));
+		const ip = new IP(BUFFER_127_0_0_1_AS_IPV6);
 
 		it('toString', () => {
 			strictEqual(
@@ -105,7 +107,7 @@ describe('Prefixed IPv4 as IPv6', () => {
 	});
 
 	describe('from buffer', () => {
-		const ip = new IP(Buffer.from([ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xFF, 0xFF, 127, 0, 0, 1 ]));
+		const ip = new IP(BUFFER_127_0_0_1_AS_IPV6);
 
 		it('toString', () => {
 			strictEqual(
@@ -137,13 +139,13 @@ describe('IPv6', () => {
 		it('toBuffer', () => {
 			deepStrictEqual(
 				ip.toBuffer(),
-				Buffer.from([ 0xFE, 0x80, 0xDE, 0xAD, 0, 0xBE, 0, 0xEF, 0, 0, 0, 0, 0, 0, 0, 1 ]),
+				BUFFER_IPV6,
 			);
 		});
 	});
 
 	describe('from buffer', () => {
-		const ip = new IP(Buffer.from([ 0xFE, 0x80, 0xDE, 0xAD, 0, 0xBE, 0, 0xEF, 0, 0, 0, 0, 0, 0, 0, 1 ]));
+		const ip = new IP(BUFFER_IPV6);
 
 		it('toString', () => {
 			strictEqual(
@@ -155,7 +157,7 @@ describe('IPv6', () => {
 		it('toBuffer', () => {
 			deepStrictEqual(
 				ip.toBuffer(),
-				Buffer.from([ 0xFE, 0x80, 0xDE, 0xAD, 0, 0xBE, 0, 0xEF, 0, 0, 0, 0, 0, 0, 0, 1 ]),
+				BUFFER_IPV6,
 			);
 		});
 	});
