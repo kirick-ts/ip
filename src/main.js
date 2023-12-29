@@ -1,15 +1,21 @@
 
+/* global IS_BUILD, require */
+
 import { createRequire } from 'node:module';
 
-/**
- * IPv4 address representation from "ip-address" package
- * @typedef {Object} Address4
- */
-/**
- * IPv6 address representation from "ip-address" package
- * @typedef {Object} Address6
- */
-const { Address6 } = createRequire(import.meta.url)('ip-address');
+// eslint-disable-next-line jsdoc/require-jsdoc
+function _require(name) {
+	try {
+		if (IS_BUILD) {
+			// eslint-disable-next-line unicorn/prefer-module
+			return require(name);
+		}
+	}
+	catch {}
+
+	return createRequire(import.meta.url)(name);
+}
+const { Address6 } = _require('ip-address');
 
 const SUBNET_4_IN_6 = new Address6('::ffff:0:0/96');
 
@@ -17,32 +23,49 @@ const SUBNET_4_IN_6 = new Address6('::ffff:0:0/96');
  * IP address representation
  * @class
  */
-export default class IP {
-	_address;
+export class IP {
+	/**
+	 * @private
+	 * @type {Address6} -
+	 */
+	raw_address;
 
 	/**
 	 * @param {string|ArrayBuffer|Buffer} value Source of IP address, can be string, ArrayBuffer or Buffer
 	 */
 	constructor(value) {
+		let raw_address;
+
 		if (typeof value === 'string') {
-			this._address = this.#fromString(value);
+			raw_address = this.#fromString(value);
 		}
 		else if (
 			value instanceof ArrayBuffer
 			|| Buffer.isBuffer(value)
 		) {
-			this._address = this.#fromBuffer(value);
+			raw_address = this.#fromBuffer(value);
 		}
 		else {
 			throw new TypeError('Invalid IP address');
 		}
+
+		Object.defineProperty(
+			this,
+			'raw_address',
+			{
+				value: raw_address,
+				enumerable: true,
+				writable: false,
+				configurable: false,
+			},
+		);
 	}
 
 	/**
 	 * Creates IP address from string
 	 * @private
 	 * @param {string} value Source of IP address
-	 * @returns {Address6}
+	 * @returns {Address6} -
 	 */
 	#fromString(value) {
 		if (value.includes(':') === false) {
@@ -56,7 +79,7 @@ export default class IP {
 	 * Creates IP address from ArrayBuffer or Buffer
 	 * @private
 	 * @param {ArrayBuffer|Buffer} value Source of IP address
-	 * @returns {Address6}
+	 * @returns {Address6 | void} -
 	 */
 	#fromBuffer(value) {
 		if (value instanceof ArrayBuffer) {
@@ -79,33 +102,41 @@ export default class IP {
 	/**
 	 * Returns IP address as IPv4
 	 * @private
-	 * @returns {Address4}
+	 * @returns {Address4 | void} -
 	 */
 	#getAddressAs4() {
+		const { raw_address } = this;
+
 		if (
-			this._address.v4 === true
-			&& typeof this._address.address4 === 'object'
+			raw_address.v4 === true
+			&& typeof raw_address.address4 === 'object'
 		) {
-			return this._address.address4;
+			return raw_address.address4;
 		}
 
-		if (this._address.isInSubnet(SUBNET_4_IN_6)) {
-			return this._address.to4();
+		if (raw_address.isInSubnet(SUBNET_4_IN_6)) {
+			return raw_address.to4();
 		}
+	}
+
+	is4() {
+		return this.#getAddressAs4() !== undefined;
 	}
 
 	/**
 	 * Checks if current IP address is equal to another IP address
 	 * @param {IP} ip IP address to check equality
-	 * @returns {boolean}
+	 * @returns {boolean} -
 	 * @throws {Error} If one or both IP addresses are subnets
 	 */
 	equals(ip) {
 		if (
-			this._address.subnetMask === 128
-			&& ip._address.subnetMask === 128
+			this.raw_address.subnetMask === 128
+			&& ip.raw_address.subnetMask === 128
 		) {
-			return this._address.isInSubnet(ip._address);
+			return this.raw_address.isInSubnet(
+				ip.raw_address,
+			);
 		}
 
 		throw new Error('Cannot check equality for subnets.');
@@ -114,31 +145,31 @@ export default class IP {
 	/**
 	 * Checks if current IP address is in subnet of another IP address
 	 * @param {IP} ip IP address to check
-	 * @returns {boolean}
+	 * @returns {boolean} -
 	 */
 	includes(ip) {
-		return ip._address.isInSubnet(this._address);
+		return ip.raw_address.isInSubnet(this.raw_address);
 	}
 
 	/**
 	 * Returns IP address as string
-	 * @returns {string}
+	 * @returns {string} -
 	 */
 	toString() {
-		return this.#getAddressAs4()?.address ?? this._address.correctForm();
+		return this.#getAddressAs4()?.address ?? this.raw_address.correctForm();
 	}
 
 	/**
 	 * Returns IP address as ArrayBuffer
-	 * @returns {ArrayBuffer}
+	 * @returns {ArrayBuffer} -
 	 */
 	toArrayBuffer() {
-		return this.#getAddressAs4()?.toArray() ?? this._address.toUnsignedByteArray();
+		return this.#getAddressAs4()?.toArray() ?? this.raw_address.toUnsignedByteArray();
 	}
 
 	/**
 	 * Returns IP address as Node.js Buffer
-	 * @returns {Buffer} IP address as Buffer
+	 * @returns {Buffer} -
 	 * @see toArrayBuffer
 	 */
 	toBuffer() {
@@ -146,14 +177,4 @@ export default class IP {
 			this.toArrayBuffer(),
 		);
 	}
-
-	// toFullArrayBuffer() {
-	// 	return this._address.toUnsignedByteArray();
-	// }
-
-	// toFullBuffer() {
-	// 	return Buffer.from(
-	// 		this.toFullArrayBuffer(),
-	// 	);
-	// }
 }
