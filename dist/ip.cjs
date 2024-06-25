@@ -22,106 +22,92 @@ __export(main_exports, {
   IP: () => IP
 });
 module.exports = __toCommonJS(main_exports);
-var import_node_module = require("node:module");
-var import_meta = {};
-function _require(name) {
-  try {
-    if (true) {
-      return require(name);
-    }
-  } catch {
-  }
-  return (0, import_node_module.createRequire)(import_meta.url)(name);
-}
-var { Address6 } = _require("ip-address");
-var SUBNET_4_IN_6 = new Address6("::ffff:0:0/96");
+var import_ip_address = require("ip-address");
+var SUBNET_4_IN_6 = new import_ip_address.Address6("::ffff:0:0/96");
 var IP = class {
   /**
    * @private
    * @type {Address6} -
    */
-  raw_address;
+  _raw_address;
   /**
-   * @param {string|ArrayBuffer|Buffer} value Source of IP address, can be string, ArrayBuffer or Buffer
+   * @param {string | ArrayBuffer | Buffer} value Source of IP address, can be string, ArrayBuffer or Buffer.
    */
   constructor(value) {
-    let raw_address;
     if (typeof value === "string") {
-      raw_address = this.#fromString(value);
+      this._raw_address = this.#fromString(value);
     } else if (value instanceof ArrayBuffer || Buffer.isBuffer(value)) {
-      raw_address = this.#fromBuffer(value);
+      this._raw_address = this.#fromBuffer(value);
     } else {
       throw new TypeError("Invalid IP address");
     }
-    Object.defineProperty(
-      this,
-      "raw_address",
-      {
-        value: raw_address,
-        enumerable: true,
-        writable: false,
-        configurable: false
-      }
-    );
   }
   /**
    * Creates IP address from string
-   * @private
    * @param {string} value Source of IP address
    * @returns {Address6} -
    */
   #fromString(value) {
     if (value.includes(":") === false) {
-      return Address6.fromAddress4(value);
+      return import_ip_address.Address6.fromAddress4(value);
     }
-    return new Address6(value);
+    return new import_ip_address.Address6(value);
   }
   /**
    * Creates IP address from ArrayBuffer or Buffer
-   * @private
-   * @param {ArrayBuffer|Buffer} value Source of IP address
-   * @returns {Address6 | void} -
+   * @param {ArrayBuffer | Buffer} value Source of IP address
+   * @returns {Address6} -
    */
   #fromBuffer(value) {
-    if (value instanceof ArrayBuffer) {
-      value = Buffer.from(value);
+    let byte_array;
+    if (Buffer.isBuffer(value)) {
+      byte_array = [...value];
+    } else if (value instanceof ArrayBuffer) {
+      byte_array = [
+        ...new Uint8Array(value)
+      ];
+    } else {
+      throw new TypeError("Argument 0 must be ArrayBuffer or Buffer.");
     }
-    if (value.byteLength === 4) {
-      return Address6.fromAddress4(
-        [...value].join(".")
+    if (byte_array.length === 4) {
+      return import_ip_address.Address6.fromAddress4(
+        byte_array.join(".")
       );
     }
-    if (value.byteLength === 16) {
-      return Address6.fromUnsignedByteArray(value);
+    if (byte_array.length === 16) {
+      return import_ip_address.Address6.fromUnsignedByteArray(byte_array);
+    }
+    throw new TypeError("Argument 0 cannot be converted to IP address.");
+  }
+  /**
+   * Returns IP address as IPv4.
+   * @returns {import('ip-address').Address4 | void} -
+   */
+  #getAddressAs4() {
+    if (this._raw_address.v4 === true && typeof this._raw_address.address4 === "object") {
+      return this._raw_address.address4;
+    }
+    if (this._raw_address.isInSubnet(SUBNET_4_IN_6)) {
+      return this._raw_address.to4();
     }
   }
   /**
-   * Returns IP address as IPv4
-   * @private
-   * @returns {Address4 | void} -
+   * Checks if current IP address is IPv4.
+   * @returns {boolean} -
    */
-  #getAddressAs4() {
-    const { raw_address } = this;
-    if (raw_address.v4 === true && typeof raw_address.address4 === "object") {
-      return raw_address.address4;
-    }
-    if (raw_address.isInSubnet(SUBNET_4_IN_6)) {
-      return raw_address.to4();
-    }
-  }
   is4() {
     return this.#getAddressAs4() !== void 0;
   }
   /**
-   * Checks if current IP address is equal to another IP address
-   * @param {IP} ip IP address to check equality
+   * Checks if current IP address is equal to another IP address.
+   * @param {IP} ip IP address to check equality.
    * @returns {boolean} -
-   * @throws {Error} If one or both IP addresses are subnets
+   * @throws {Error} If one or both IP addresses are subnets.
    */
   equals(ip) {
-    if (this.raw_address.subnetMask === 128 && ip.raw_address.subnetMask === 128) {
-      return this.raw_address.isInSubnet(
-        ip.raw_address
+    if (this._raw_address.subnetMask === 128 && ip._raw_address.subnetMask === 128) {
+      return this._raw_address.isInSubnet(
+        ip._raw_address
       );
     }
     throw new Error("Cannot check equality for subnets.");
@@ -132,30 +118,48 @@ var IP = class {
    * @returns {boolean} -
    */
   includes(ip) {
-    return ip.raw_address.isInSubnet(this.raw_address);
+    return ip._raw_address.isInSubnet(
+      this._raw_address
+    );
   }
   /**
-   * Returns IP address as string
+   * Returns IP address as string.
    * @returns {string} -
    */
   toString() {
-    return this.#getAddressAs4()?.address ?? this.raw_address.correctForm();
+    const address4 = this.#getAddressAs4();
+    if (address4) {
+      return address4.address;
+    }
+    return this._raw_address.correctForm();
   }
   /**
-   * Returns IP address as ArrayBuffer
+   * Returns IP address as byte array.
+   * @returns {number[]} -
+   */
+  toByteArray() {
+    const address4 = this.#getAddressAs4();
+    if (address4) {
+      return address4.toArray();
+    }
+    return this._raw_address.toUnsignedByteArray();
+  }
+  /**
+   * Returns IP address as ArrayBuffer.
    * @returns {ArrayBuffer} -
    */
   toArrayBuffer() {
-    return this.#getAddressAs4()?.toArray() ?? this.raw_address.toUnsignedByteArray();
+    return Uint8Array.from(
+      this.toByteArray()
+    ).buffer;
   }
   /**
-   * Returns IP address as Node.js Buffer
+   * Returns IP address as Node.js Buffer.
    * @returns {Buffer} -
-   * @see toArrayBuffer
    */
   toBuffer() {
     return Buffer.from(
-      this.toArrayBuffer()
+      this.toByteArray()
     );
   }
 };

@@ -28,9 +28,18 @@ module.exports = {
 		'node',
 	],
 	ignorePatterns: [
+		'*.d.ts',
 		'dist/**/*',
+		'node_modules*/**/*',
 	],
 	rules: {
+		'arrow-body-style': [
+			'error',
+			'as-needed',
+			{
+				requireReturnForObjectLiteral: true,
+			},
+		],
 		'array-bracket-spacing': [
 			'warn',
 			'always',
@@ -58,6 +67,20 @@ module.exports = {
 			'error',
 			'always',
 		],
+		'import/order': [
+			'error',
+			{
+				groups: [
+					[
+						'builtin',
+						'external',
+					],
+					'internal',
+					'parent',
+					'sibling',
+				],
+			},
+		],
 		'indent': [
 			'error',
 			'tab',
@@ -66,6 +89,7 @@ module.exports = {
 				SwitchCase: 1,
 			},
 		],
+		'jsdoc/require-jsdoc': 'error',
 		'new-cap': [
 			'error',
 			{
@@ -83,7 +107,9 @@ module.exports = {
 				},
 			},
 		],
+		'no-multiple-empty-lines': 'warn',
 		'no-promise-executor-return': 'off',
+		'no-trailing-spaces': 'warn',
 		'no-unused-vars': 'warn',
 		'node/no-missing-import': 'off',
 		'node/no-unpublished-import': 'off',
