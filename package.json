@@ -1,6 +1,6 @@
 {
 	"name": "@kirick/ip",
-	"version": "0.1.1-beta.6",
+	"version": "0.1.1",
 	"description": "IP address library",
 	"publishConfig": {
 		"access": "public"
