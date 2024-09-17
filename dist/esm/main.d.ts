@@ -1,54 +1,55 @@
+import { Address6 } from 'ip-address';
 /**
  * IP address representation.
  * @class
  */
-export class IP {
+export declare class IP {
+    raw_address: Address6;
     /**
-     * @param {string | ArrayBuffer | Buffer} value Source of IP address, can be string, ArrayBuffer or Buffer.
+     * @param value Source of IP address, can be string, ArrayBuffer or Buffer.
      */
     constructor(value: string | ArrayBuffer | Buffer);
     /**
-     * @private
-     * @type {Address6} -
+     * Returns IP address as IPv4.
+     * @returns -
      */
-    private _raw_address;
+    private getAddressAs4;
     /**
      * Checks if current IP address is IPv4.
-     * @returns {boolean} -
+     * @returns -
      */
     is4(): boolean;
     /**
      * Checks if current IP address is equal to another IP address.
-     * @param {IP} ip IP address to check equality.
-     * @returns {boolean} -
+     * @param ip IP address to check equality.
+     * @returns -
      * @throws {Error} If one or both IP addresses are subnets.
      */
     equals(ip: IP): boolean;
     /**
      * Checks if current IP address is in subnet of another IP address
-     * @param {IP} ip IP address to check
-     * @returns {boolean} -
+     * @param ip IP address to check
+     * @returns -
      */
     includes(ip: IP): boolean;
     /**
      * Returns IP address as string.
-     * @returns {string} -
+     * @returns -
      */
     toString(): string;
     /**
      * Returns IP address as byte array.
-     * @returns {number[]} -
+     * @returns -
      */
     toByteArray(): number[];
     /**
      * Returns IP address as ArrayBuffer.
-     * @returns {ArrayBuffer} -
+     * @returns -
      */
     toArrayBuffer(): ArrayBuffer;
     /**
      * Returns IP address as Node.js Buffer.
-     * @returns {Buffer} -
+     * @returns -
      */
     toBuffer(): Buffer;
-    #private;
 }

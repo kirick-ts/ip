@@ -1,9 +1,19 @@
+/* eslint-disable @stylistic/array-element-newline */
 
 import {
 	describe,
 	test,
-	expect }  from 'vitest';
-import { IP } from './main.js';
+	expect,
+} from 'vitest';
+import { IP } from './main';
+
+interface TestFactory {
+	is_ipv4: boolean;
+	source_string: string;
+	source_byte_array: number[];
+	target_string: string;
+	target_byte_array: number[];
+}
 
 // eslint-disable-next-line jsdoc/require-jsdoc
 function testFactory({
@@ -12,8 +22,8 @@ function testFactory({
 	source_byte_array,
 	target_string,
 	target_byte_array,
-}) {
-	const source_array_buffer = new Uint8Array(source_byte_array).buffer;
+}: TestFactory) {
+	const source_array_buffer = new Uint8Array(source_byte_array).buffer as ArrayBuffer;
 	const source_buffer = Buffer.from(source_byte_array);
 
 	const ip_from_string = new IP(source_string);

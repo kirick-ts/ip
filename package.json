@@ -1,47 +1,41 @@
 {
 	"name": "@kirick/ip",
-	"version": "0.1.1-beta.5",
+	"version": "0.1.1-beta.6",
 	"description": "IP address library",
 	"publishConfig": {
 		"access": "public"
 	},
 	"type": "module",
-	"main": "src/main.js",
-	"types": "types/main.d.ts",
+	"main": "dist/esm/main.js",
+	"types": "dist/esm/main.d.ts",
 	"exports": {
 		".": {
-			"import": "./src/main.js",
-			"require": "./dist/ip.cjs"
+			"import": "./dist/esm/main.js",
+			"require": "./dist/main.cjs"
 		}
 	},
 	"engines": {
-		"node": ">=10.0.0"
+		"node": ">=14"
 	},
 	"dependencies": {
 		"ip-address": "9.0.5"
 	},
 	"devDependencies": {
-		"@babel/eslint-parser": "7.21.8",
-		"@types/node": "^20.14.8",
-		"eslint": "8.41.0",
-		"eslint-config-xo": "0.43.1",
-		"eslint-plugin-import": "2.27.5",
-		"eslint-plugin-jsdoc": "46.5.0",
-		"eslint-plugin-node": "11.1.0",
-		"eslint-plugin-promise": "6.1.1",
-		"eslint-plugin-unicorn": "47.0.0",
-		"vitest": "^1.6.0"
+		"@kirick/eslint-config": "latest",
+		"@types/bun": "^1.1.6",
+		"@types/node": "^20.14.10",
+		"eslint": "9.8.0",
+		"typescript": "5.5.4",
+		"vitest": "2.1.1"
 	},
 	"scripts": {
-		"test": "bun run build:cjs-test && bun test && npm run test:node ; rm dist/ip.test.cjs",
-		"test:node": "vitest run --no-file-parallelism",
-		"test:coverage": "bun test --coverage",
-		"build": "bun run build:types && bun run build:cjs && bun run build:cjs-test",
-		"build:cjs": "bunx esbuild --bundle --platform=node --format=cjs --packages=external --outfile=dist/ip.cjs src/main.js",
-		"build:cjs-test": "bunx esbuild --bundle --platform=node --format=cjs --packages=external --outfile=dist/ip.test.cjs src/main.test.js",
-		"build:types": "tsc --skipLibCheck --declaration --emitDeclarationOnly --outDir types",
-		"publish:npm": "bun run build && eslint . && tsc --skipLibCheck --noemit && bun run test && npm publish",
-		"publish:npm:beta": "bun run publish:npm --tag beta"
+		"build": "bun run build:ts && bun run build:cjs",
+		"build:cjs": "bunx esbuild --bundle --platform=node --format=cjs --packages=external --outfile=dist/main.cjs dist/esm/main.js",
+		"build:ts": "rm -rf dist/esm dist/types ; tsc",
+		"lint": "eslint . && tsc --skipLibCheck --noemit",
+		"publish:npm": "bun run build && bun run lint && bun run test && npm publish",
+		"test": "npm run test:vitest && bun test --coverage",
+		"test:vitest": "vitest run --no-file-parallelism"
 	},
 	"repository": {
 		"type": "git",
@@ -51,6 +45,7 @@
 		"ip",
 		"address"
 	],
+	"author": "Daniil Kirichenko (https://twitter.com/kirickme)",
 	"license": "MIT",
 	"bugs": {
 		"url": "https://github.com/kirick13/ip-js/issues"
