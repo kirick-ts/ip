@@ -1,20 +1,116 @@
 name: Publish NPM Package
 
 on:
-  - push
+  push:
+    branches:
+      - main
+      - beta
+      - 'dev-*'
+  pull_request:
+    branches:
+      - main
+      - beta
+      - 'dev-*'
+
+env:
+  BUN_VERSION: 1.2.2
+  NODE_VERSION: 22
 
 jobs:
-  build:
+  version:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
+    outputs:
+      npm_tag: ${{ steps.set-tag.outputs.npm_tag }}
     steps:
       - uses: actions/checkout@v4
-      - uses: kirick13/build-npm-package-action@v1.3
+
+      - uses: oven-sh/setup-bun@v2
         with:
-          bun-version: 1.2.2
-          npm-token: ${{ secrets.NPM_TOKEN }}
+          bun-version: ${{ env.BUN_VERSION }}
+
+      - name: Determine NPM tag and validate branch
+        id: set-tag
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          BRANCH=${GITHUB_REF#refs/heads/}
+
+          if [[ $VERSION == *"-beta."* ]]; then
+            NPM_TAG="beta"
+            VALID_BRANCH="beta"
+          elif [[ $VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            NPM_TAG="latest"
+            VALID_BRANCH="main"
+          else
+            NPM_TAG="dev"
+            VALID_BRANCH="dev-*"
+          fi
+
+          echo "Detected version: $VERSION"
+          echo "NPM tag: $NPM_TAG"
+          echo "Current branch: $BRANCH"
+          echo "Expected branch pattern: $VALID_BRANCH"
+
+          if [[ $NPM_TAG == "beta" && $BRANCH != "beta" ]] || \
+             [[ $NPM_TAG == "latest" && $BRANCH != "main" ]] || \
+             [[ $NPM_TAG == "dev" && ! $BRANCH =~ ^dev- ]]; then
+            echo "Error: Version tag ($NPM_TAG) doesn't match branch pattern ($VALID_BRANCH)"
+            exit 1
+          fi
+
+          echo "npm_tag=$NPM_TAG" >> $GITHUB_OUTPUT
+
+  prepare:
+    needs: [version]
+    if: |
+      github.event_name == 'push' &&
+      (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/beta')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Lint code
+        run: bun run lint
+
+      - name: Test code
+        run: bun run test
+
+  publish:
+    needs: [version, prepare]
+    if: |
+      github.event_name == 'push' &&
+      (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/beta')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: https://registry.npmjs.org/
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build code
+        run: bun run build
+
+      - name: Publish to NPM
+        run: npm publish --access public --provenance --tag ${{ needs.version.outputs.npm_tag }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
       - uses: kirick13/notify-action@v1
         with:
           telegram-bot-token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
