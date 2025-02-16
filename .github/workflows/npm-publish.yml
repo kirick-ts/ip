@@ -55,6 +55,7 @@ jobs:
           else
             BRANCH=${{ github.base_ref }}
           fi
+          echo "Branch to test against: $BRANCH"
           
           NPM_TAG=${{ steps.determine-tag.outputs.npm_tag }}
 
