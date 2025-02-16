@@ -11,8 +11,9 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v4
-      - uses: kirick13/build-npm-package-action@v1
+      - uses: kirick13/build-npm-package-action@v1.3
         with:
+          bun-version: 1.2.2
           npm-token: ${{ secrets.NPM_TOKEN }}
       - uses: kirick13/notify-action@v1
         with:

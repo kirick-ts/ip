@@ -1,6 +1,6 @@
 {
 	"name": "@kirick/ip",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"description": "IP address library",
 	"publishConfig": {
 		"access": "public"
@@ -18,7 +18,7 @@
 		"node": ">=14"
 	},
 	"dependencies": {
-		"ip-address": "9.0.5"
+		"ip-address": "10.0.1"
 	},
 	"devDependencies": {
 		"@kirick/eslint-config": "latest",
@@ -33,7 +33,7 @@
 		"build:cjs": "bunx esbuild --bundle --platform=node --format=cjs --packages=external --outfile=dist/main.cjs dist/esm/main.js",
 		"build:ts": "rm -rf dist/esm dist/types ; tsc",
 		"lint": "eslint . && tsc --skipLibCheck --noemit",
-		"publish:npm": "bun run build && bun run lint && bun run test && npm publish",
+		"publish:npm": "bun run lint && bun run build && bun run test && npm publish",
 		"test": "npm run test:vitest && bun test --coverage",
 		"test:vitest": "vitest run --no-file-parallelism"
 	},
