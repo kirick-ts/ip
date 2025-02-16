@@ -55,12 +55,11 @@ jobs:
           else
             BRANCH=${{ github.base_ref }}
           fi
-          echo "Branch to test against: $BRANCH"
           
           NPM_TAG=${{ steps.determine-tag.outputs.npm_tag }}
 
-          if [[ $NPM_TAG == "beta" && $BRANCH != "beta" ]] || \
-             [[ $NPM_TAG == "latest" && $BRANCH != "main" ]]; then
+          if [[ $BRANCH == "main" && $NPM_TAG != "latest" ]] || \
+             [[ $BRANCH == "beta" && $NPM_TAG != "beta" ]]; then
             echo "Error: Version tag $NPM_TAG doesn't match branch $BRANCH"
             exit 1
           fi
