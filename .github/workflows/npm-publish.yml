@@ -56,7 +56,7 @@ jobs:
             BRANCH=${{ github.base_ref }}
           fi
           
-          NPM_TAG=${{ steps.determine-tag.outputs.npm_tag }}
+          NPM_TAG=${{ steps.set-tag.outputs.npm_tag }}
 
           if [[ $BRANCH == "main" && $NPM_TAG != "latest" ]] || \
              [[ $BRANCH == "beta" && $NPM_TAG != "beta" ]]; then
