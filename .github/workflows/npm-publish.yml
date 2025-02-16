@@ -47,10 +47,15 @@ jobs:
 
       - name: Validate branch and tag
         if: |
-          github.ref == 'refs/heads/main' || 
-          github.ref == 'refs/heads/beta'
+          (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/beta'))
+          || (github.event_name == 'pull_request' && (github.base_ref == 'main' || github.base_ref == 'beta'))
         run: |
-          BRANCH=${GITHUB_REF#refs/heads/}
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            BRANCH=${GITHUB_REF#refs/heads/}
+          else
+            BRANCH=${{ github.base_ref }}
+          fi
+          
           NPM_TAG=${{ steps.determine-tag.outputs.npm_tag }}
 
           if [[ $NPM_TAG == "beta" && $BRANCH != "beta" ]] || \
@@ -83,6 +88,9 @@ jobs:
     if: |
       github.event_name == 'push' &&
       (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/beta')
+    permissions:
+      contents: read
+      id-token: write
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
