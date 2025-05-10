@@ -5,7 +5,7 @@ import {
 	test,
 	expect,
 } from 'vitest';
-import { IP } from './main';
+import { IP } from './main.js';
 
 interface TestFactory {
 	is_ipv4: boolean;
