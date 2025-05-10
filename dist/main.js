@@ -1,39 +1,15 @@
-"use strict";
-//#region rolldown:runtime
-var __create = Object.create;
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __getOwnPropNames = Object.getOwnPropertyNames;
-var __getProtoOf = Object.getPrototypeOf;
-var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __copyProps = (to, from, except, desc) => {
-	if (from && typeof from === "object" || typeof from === "function") for (var keys = __getOwnPropNames(from), i = 0, n = keys.length, key; i < n; i++) {
-		key = keys[i];
-		if (!__hasOwnProp.call(to, key) && key !== except) __defProp(to, key, {
-			get: ((k) => from[k]).bind(null, key),
-			enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable
-		});
-	}
-	return to;
-};
-var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", {
-	value: mod,
-	enumerable: true
-}) : target, mod));
-
-//#endregion
-const ip_address = __toESM(require("ip-address"));
+import { Address6 } from "ip-address";
 
 //#region src/main.ts
-const SUBNET_4_IN_6 = new ip_address.Address6("::ffff:0:0/96");
+const SUBNET_4_IN_6 = new Address6("::ffff:0:0/96");
 /**
 * Creates IP address from string
 * @param value Source of IP address
 * @returns -
 */
 function fromString(value) {
-	if (value.includes(":") === false) return ip_address.Address6.fromAddress4(value);
-	return new ip_address.Address6(value);
+	if (value.includes(":") === false) return Address6.fromAddress4(value);
+	return new Address6(value);
 }
 /**
 * Creates IP address from ArrayBuffer or Buffer
@@ -45,8 +21,8 @@ function fromBuffer(value) {
 	if (Buffer.isBuffer(value)) byte_array = [...value];
 	else if (value instanceof ArrayBuffer) byte_array = [...new Uint8Array(value)];
 	else throw new TypeError("Argument 0 must be ArrayBuffer or Buffer.");
-	if (byte_array.length === 4) return ip_address.Address6.fromAddress4(byte_array.join("."));
-	if (byte_array.length === 16) return ip_address.Address6.fromUnsignedByteArray(byte_array);
+	if (byte_array.length === 4) return Address6.fromAddress4(byte_array.join("."));
+	if (byte_array.length === 16) return Address6.fromUnsignedByteArray(byte_array);
 	throw new TypeError("Argument 0 cannot be converted to IP address.");
 }
 /**
@@ -131,4 +107,4 @@ var IP = class {
 };
 
 //#endregion
-exports.IP = IP
+export { IP };
