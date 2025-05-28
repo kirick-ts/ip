@@ -26,6 +26,14 @@ const ip_address = __toESM(require("ip-address"));
 
 //#region src/main.ts
 const SUBNET_4_IN_6 = new ip_address.Address6("::ffff:0:0/96");
+const CIDR_LOOPBACK_4 = new ip_address.Address4("127.0.0.0/8");
+const CIDR_PRIVATE_4 = [
+	new ip_address.Address4("10.0.0.0/8"),
+	new ip_address.Address4("172.16.0.0/12"),
+	new ip_address.Address4("192.168.0.0/16")
+];
+const CIDR_LOOPBACK_6 = new ip_address.Address6("::1/128");
+const CIDR_PRIVATE_6 = new ip_address.Address6("fc00::/7");
 /**
 * Creates IP address from string
 * @param value Source of IP address
@@ -49,10 +57,6 @@ function fromBuffer(value) {
 	if (byte_array.length === 16) return ip_address.Address6.fromUnsignedByteArray(byte_array);
 	throw new TypeError("Argument 0 cannot be converted to IP address.");
 }
-/**
-* IP address representation.
-* @class
-*/
 var IP = class {
 	raw_address;
 	/**
@@ -77,6 +81,30 @@ var IP = class {
 	*/
 	is4() {
 		return this.getAddressAs4() !== void 0;
+	}
+	/**
+	* Checks if current IP address is private, i.e. belongs to one of the private networks:
+	* - `10.0.0.0/8`
+	* - `172.16.0.0/12`
+	* - `192.168.0.0/16`
+	* - `fc00::/7`
+	* @returns -
+	*/
+	isPrivate() {
+		if (this.raw_address.address4) {
+			for (const cidr of CIDR_PRIVATE_4) if (this.raw_address.address4.isInSubnet(cidr)) return true;
+		} else return this.raw_address.isInSubnet(CIDR_PRIVATE_6);
+		return false;
+	}
+	/**
+	* Checks if current IP address is loopback, i.e. belongs to one of:
+	* - `127.0.0.0/8`
+	* - `::1/128`
+	* @returns -
+	*/
+	isLoopback() {
+		if (this.raw_address.address4) return this.raw_address.address4.isInSubnet(CIDR_LOOPBACK_4);
+		return this.raw_address.isInSubnet(CIDR_LOOPBACK_6);
 	}
 	/**
 	* Checks if current IP address is equal to another IP address.
