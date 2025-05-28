@@ -1,6 +1,6 @@
 {
 	"name": "@kirick/ip",
-	"version": "0.1.4",
+	"version": "0.1.5",
 	"description": "IP address library",
 	"publishConfig": {
 		"access": "public"
@@ -18,12 +18,14 @@
 		"node": ">=14"
 	},
 	"dependencies": {
+		"@kirick/lint": "0.1.1",
 		"ip-address": "10.0.1"
 	},
 	"devDependencies": {
-		"@kirick/eslint-config": "0.1.30",
+		"@biomejs/biome": "1.9.4",
 		"@types/node": "^22.14.1",
-		"eslint": "9.10.0",
+		"eslint": "9.27.0",
+		"oxlint": "0.16.12",
 		"publint": "^0.3.12",
 		"tsdown": "^0.10.0",
 		"typescript": "5.8.3",
@@ -34,7 +36,7 @@
 	"scripts": {
 		"build": "tsdown src/main.ts --publint --unused --dts --format esm --format cjs && rm dist/main.d.cts",
 		"check": "bun run lint && bun run build && bun run test",
-		"lint": "eslint . && tsc",
+		"lint": "biome format && oxlint && eslint . && tsc",
 		"test": "npm run test:vitest && bun test --coverage",
 		"test:vitest": "vitest run --no-file-parallelism"
 	},
@@ -42,10 +44,7 @@
 		"type": "git",
 		"url": "git+https://github.com/kirick-ts/ip.git"
 	},
-	"keywords": [
-		"ip",
-		"address"
-	],
+	"keywords": ["ip", "address"],
 	"author": "Daniil Kirichenko (https://twitter.com/kirickme)",
 	"license": "MIT",
 	"bugs": {
