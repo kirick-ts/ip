@@ -1,4 +1,3 @@
-"use strict";
 //#region rolldown:runtime
 var __create = Object.create;
 var __defProp = Object.defineProperty;
@@ -159,4 +158,4 @@ var IP = class {
 };
 
 //#endregion
-exports.IP = IP
+exports.IP = IP;
