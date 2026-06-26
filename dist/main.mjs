@@ -1,15 +1,14 @@
-Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
-let ip_address = require("ip-address");
+import { Address4, Address6 } from "ip-address";
 //#region src/utils.ts
-const SUBNET_4_IN_6 = new ip_address.Address6("::ffff:0:0/96");
+const SUBNET_4_IN_6 = new Address6("::ffff:0:0/96");
 /**
 * Creates IP address from string
 * @param value Source of IP address
 * @returns -
 */
 function fromString(value) {
-	if (value.includes(":") === false) return ip_address.Address6.fromAddress4(value);
-	return new ip_address.Address6(value);
+	if (value.includes(":") === false) return Address6.fromAddress4(value);
+	return new Address6(value);
 }
 /**
 * Creates IP address from ArrayBuffer or Buffer
@@ -20,8 +19,8 @@ function fromBuffer(value) {
 	if (value instanceof Uint8Array || Buffer.isBuffer(value)) byte_array = [...value];
 	else if (value instanceof ArrayBuffer) byte_array = [...new Uint8Array(value)];
 	else throw new TypeError("Argument 0 must be ArrayBuffer or Buffer.");
-	if (byte_array.length === 4) return ip_address.Address6.fromAddress4(byte_array.join("."));
-	if (byte_array.length === 16) return ip_address.Address6.fromUnsignedByteArray(byte_array);
+	if (byte_array.length === 4) return Address6.fromAddress4(byte_array.join("."));
+	if (byte_array.length === 16) return Address6.fromUnsignedByteArray(byte_array);
 	throw new TypeError("Argument 0 cannot be converted to IP address.");
 }
 /** Checks if Address6 is in the IPv4-in-IPv6 subnet. */
@@ -38,14 +37,14 @@ function getAddress4(address6) {
 }
 //#endregion
 //#region src/ip.ts
-const CIDR_LOOPBACK_4 = new ip_address.Address4("127.0.0.0/8");
+const CIDR_LOOPBACK_4 = new Address4("127.0.0.0/8");
 const CIDR_PRIVATE_4 = [
-	new ip_address.Address4("10.0.0.0/8"),
-	new ip_address.Address4("172.16.0.0/12"),
-	new ip_address.Address4("192.168.0.0/16")
+	new Address4("10.0.0.0/8"),
+	new Address4("172.16.0.0/12"),
+	new Address4("192.168.0.0/16")
 ];
-const CIDR_LOOPBACK_6 = new ip_address.Address6("::1/128");
-const CIDR_PRIVATE_6 = new ip_address.Address6("fc00::/7");
+const CIDR_LOOPBACK_6 = new Address6("::1/128");
+const CIDR_PRIVATE_6 = new Address6("fc00::/7");
 var IP = class {
 	#address6;
 	constructor(value) {
@@ -157,5 +156,4 @@ var CIDR = class {
 	}
 };
 //#endregion
-exports.CIDR = CIDR;
-exports.IP = IP;
+export { CIDR, IP };

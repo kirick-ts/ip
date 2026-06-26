@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { IP } from './main.js';
+import { IP } from './ip.js';
 
 interface TestFactory {
 	is_ipv4: boolean;
@@ -17,19 +17,23 @@ function testFactory({
 	target_string,
 	target_byte_array,
 }: TestFactory) {
-	const source_array_buffer = new Uint8Array(source_byte_array)
-		.buffer as ArrayBuffer;
+	const source_bytes = new Uint8Array(source_byte_array);
+	const source_array_buffer = source_bytes.buffer as ArrayBuffer;
 	const source_buffer = Buffer.from(source_byte_array);
 
 	const ip_from_string = new IP(source_string);
+	const ip_from_bytes = new IP(source_bytes);
 	const ip_from_array_buffer = new IP(source_array_buffer);
 	const ip_from_buffer = new IP(source_buffer);
 
-	const target_array_buffer = new Uint8Array(target_byte_array).buffer;
+	const target_uint8array = new Uint8Array(target_byte_array);
+	const target_array_buffer = target_uint8array.buffer;
 	const target_buffer = Buffer.from(target_byte_array);
 
 	test(is_ipv4 ? 'is IPv4' : 'is IPv6', () => {
 		expect(ip_from_string.is4()).toBe(is_ipv4);
+
+		expect(ip_from_bytes.is4()).toBe(is_ipv4);
 
 		expect(ip_from_array_buffer.is4()).toBe(is_ipv4);
 
@@ -45,12 +49,16 @@ function testFactory({
 			expect(ip.toString()).toBe(target_string);
 		});
 
-		test(`${type_from} -> number[]`, () => {
-			expect(ip.toByteArray()).toStrictEqual(target_byte_array);
+		test(`${type_from} -> Uint8Array`, () => {
+			expect(ip.toBytes()).toStrictEqual(target_uint8array);
 		});
 
 		test(`${type_from} -> ArrayBuffer`, () => {
 			expect(ip.toArrayBuffer()).toStrictEqual(target_array_buffer);
+		});
+
+		test(`${type_from} -> number[]`, () => {
+			expect(ip.toByteArray()).toStrictEqual(target_byte_array);
 		});
 
 		test(`${type_from} -> Buffer`, () => {
@@ -178,31 +186,5 @@ describe('isLoopback', () => {
 		expect(new IP('::1').isLoopback()).toBe(true);
 		expect(new IP('fc00::1').isLoopback()).toBe(false);
 		expect(new IP('2001:4860:4860::8888').isLoopback()).toBe(false);
-	});
-});
-
-describe('subnets', () => {
-	describe('IPv4', () => {
-		const ip_subnet = new IP('127.0.0.0/8');
-
-		test('includes', () => {
-			expect(ip_subnet.includes(new IP('127.0.0.1'))).toBe(true);
-		});
-
-		test('excludes', () => {
-			expect(ip_subnet.includes(new IP('8.8.8.8'))).toBe(false);
-		});
-	});
-
-	describe('IPv6', () => {
-		const ip_subnet = new IP('fc00::/7');
-
-		test('includes', () => {
-			expect(ip_subnet.includes(new IP('fd80::1'))).toBe(true);
-		});
-
-		test('excludes', () => {
-			expect(ip_subnet.includes(new IP('2001:4860:4860::8888'))).toBe(false);
-		});
 	});
 });
