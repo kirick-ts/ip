@@ -1,6 +1,6 @@
 {
 	"name": "@kirick/ip",
-	"version": "0.2.0",
+	"version": "0.2.1",
 	"description": "IP address library",
 	"publishConfig": {
 		"access": "public"
@@ -21,7 +21,7 @@
 		"node": ">=15"
 	},
 	"dependencies": {
-		"ip-address": "10.0.1"
+		"ip-address": "10.2.0"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.4.10",
