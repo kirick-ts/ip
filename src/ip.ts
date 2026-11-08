@@ -34,8 +34,8 @@ export class IP {
 		}
 	}
 
-	/** @deprecated This property is for internal use only. */
-	get address6(): Address6 {
+	/** @internal */
+	get _address6(): Address6 {
 		return this.#address6;
 	}
 
@@ -86,7 +86,7 @@ export class IP {
 	 * @param ip IP address to check equality.
 	 */
 	equals(ip: IP): boolean {
-		return this.#address6.isInSubnet(ip.address6);
+		return this.#address6.isInSubnet(ip.#address6);
 	}
 
 	/** Returns IP address as string. */

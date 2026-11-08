@@ -1,6 +1,6 @@
 import type { Address6 } from 'ip-address';
 import { IP } from './ip.js';
-import { fromBuffer, fromString, isAddress4 } from './utils.js';
+import { fromString, isAddress4 } from './utils.js';
 
 export class CIDR {
 	#address6: Address6;
@@ -16,16 +16,13 @@ export class CIDR {
 		arg0: string | ArrayBuffer | Uint8Array | Buffer | IP,
 		mask?: number,
 	) {
-		if (arg0 instanceof IP) {
-			this.#address6 = fromString(`${arg0.toString()}/${mask}`);
-			this.ip = arg0;
-			this.mask = mask!;
-		} else if (typeof arg0 === 'string') {
+		if (typeof arg0 === 'string') {
 			this.#address6 = fromString(arg0);
 			this.mask =
 				this.#address6.subnetMask - (isAddress4(this.#address6) ? 96 : 0);
 		} else {
-			this.#address6 = fromBuffer(arg0);
+			this.ip = arg0 instanceof IP ? arg0 : new IP(arg0);
+			this.#address6 = fromString(`${this.ip.toString()}/${mask}`);
 			this.mask = mask!;
 		}
 
@@ -39,7 +36,7 @@ export class CIDR {
 	 * @param ip IP address to check.
 	 */
 	includes(ip: IP): boolean {
-		return ip.address6.isInSubnet(this.#address6);
+		return ip._address6.isInSubnet(this.#address6);
 	}
 
 	/** Returns IP addCIDRress as string. */
