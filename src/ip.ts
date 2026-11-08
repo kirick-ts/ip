@@ -55,17 +55,12 @@ export class IP {
 	 * - `fc00::/7`
 	 */
 	isPrivate(): boolean {
-		if (this.#address6.address4) {
-			for (const cidr of CIDR_PRIVATE_4) {
-				if (this.#address6.address4.isInSubnet(cidr)) {
-					return true;
-				}
-			}
-		} else {
-			return this.#address6.isInSubnet(CIDR_PRIVATE_6);
+		const address4 = getAddress4(this.#address6);
+		if (address4) {
+			return CIDR_PRIVATE_4.some((cidr) => address4.isInSubnet(cidr));
 		}
 
-		return false;
+		return this.#address6.isInSubnet(CIDR_PRIVATE_6);
 	}
 
 	/**
@@ -74,8 +69,9 @@ export class IP {
 	 * - `::1/128`
 	 */
 	isLoopback(): boolean {
-		if (this.#address6.address4) {
-			return this.#address6.address4.isInSubnet(CIDR_LOOPBACK_4);
+		const address4 = getAddress4(this.#address6);
+		if (address4) {
+			return address4.isInSubnet(CIDR_LOOPBACK_4);
 		}
 
 		return this.#address6.isInSubnet(CIDR_LOOPBACK_6);

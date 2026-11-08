@@ -168,6 +168,19 @@ describe('isPrivate', () => {
 		expect(new IP('5.9.69.13').isPrivate()).toBe(false);
 	});
 
+	test('IPv4-mapped IPv6', () => {
+		expect(new IP('::ffff:192.168.1.4').isPrivate()).toBe(true);
+		expect(new IP('::ffff:c0a8:104').isPrivate()).toBe(true);
+		expect(
+			new IP(
+				new Uint8Array([
+					0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff, 0xff, 192, 168, 1, 4,
+				]),
+			).isPrivate(),
+		).toBe(true);
+		expect(new IP('::ffff:808:808').isPrivate()).toBe(false);
+	});
+
 	test('IPv6', () => {
 		expect(new IP('fd80::1').isPrivate()).toBe(true);
 		expect(new IP('fc00::1').isPrivate()).toBe(true);
@@ -180,6 +193,11 @@ describe('isLoopback', () => {
 		expect(new IP('127.0.0.1').isLoopback()).toBe(true);
 		expect(new IP('10.0.13.1').isLoopback()).toBe(false);
 		expect(new IP('8.8.8.8').isLoopback()).toBe(false);
+	});
+
+	test('IPv4-mapped IPv6', () => {
+		expect(new IP('::ffff:7f00:1').isLoopback()).toBe(true);
+		expect(new IP('::ffff:808:808').isLoopback()).toBe(false);
 	});
 
 	test('IPv6', () => {
