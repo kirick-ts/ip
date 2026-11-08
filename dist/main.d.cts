@@ -1,11 +1,7 @@
-import { Address6 } from "ip-address";
-
 //#region src/ip.d.ts
 declare class IP {
   #private;
   constructor(value: string | ArrayBuffer | Uint8Array | Buffer);
-  /** @deprecated This property is for internal use only. */
-  get address6(): Address6;
   /** Checks if current IP address is IPv4. */
   is4(): boolean;
   /**

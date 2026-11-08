@@ -21,6 +21,20 @@ describe('constructor', () => {
 			expect(cidr.ip.toString()).toBe(ip_string);
 			expect(cidr.mask).toBe(mask);
 		});
+
+		test('from bytes', () => {
+			const cidr = new CIDR(new Uint8Array([192, 168, 0, 1]), mask);
+			expect(cidr.toString()).toBe(cidr_string);
+			expect(cidr.ip.toString()).toBe(ip_string);
+			expect(cidr.mask).toBe(mask);
+		});
+
+		test('from IP', () => {
+			const cidr = new CIDR(new IP(ip_string), mask);
+			expect(cidr.toString()).toBe(cidr_string);
+			expect(cidr.ip.toString()).toBe(ip_string);
+			expect(cidr.mask).toBe(mask);
+		});
 	});
 
 	describe('IPv6', () => {
@@ -30,6 +44,13 @@ describe('constructor', () => {
 
 		test('from string', () => {
 			const cidr = new CIDR(`${ip_string}/${mask}`);
+			expect(cidr.toString()).toBe(cidr_string);
+			expect(cidr.ip.toString()).toBe(ip_string);
+			expect(cidr.mask).toBe(mask);
+		});
+
+		test('from bytes', () => {
+			const cidr = new CIDR(new IP(ip_string).toBytes(), mask);
 			expect(cidr.toString()).toBe(cidr_string);
 			expect(cidr.ip.toString()).toBe(ip_string);
 			expect(cidr.mask).toBe(mask);

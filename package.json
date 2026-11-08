@@ -1,12 +1,14 @@
 {
 	"name": "@kirick/ip",
-	"version": "0.2.1",
-	"description": "IP address library",
+	"version": "0.2.2",
+	"description": "IP address library.",
 	"publishConfig": {
 		"access": "public"
 	},
 	"type": "module",
-	"main": "dist/main.mjs",
+	"files": [
+		"dist/"
+	],
 	"exports": {
 		".": {
 			"types": {
@@ -24,22 +26,24 @@
 		"ip-address": "10.2.0"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "2.4.10",
-		"@kirick/lint": "0.3.3",
-		"@types/node": "22.16",
-		"eslint": "10.2.0",
-		"oxlint": "1.58.0",
+		"@biomejs/biome": "2.5.4",
+		"@kirick/lint": "0.4.2",
+		"@types/node": "24.13.3",
+		"eslint": "10.7.0",
+		"oxlint": "1.74.0",
 		"publint": "0.3.21",
 		"tsdown": "0.22.3",
-		"typescript": "6.0.2",
+		"typescript": "6.0.3",
 		"unplugin-unused": "0.5.7",
 		"valibot": "1.4.1",
 		"vitest": "4.1.9"
 	},
+	"_devpack": {
+		"@kirick/lint": "../lint"
+	},
 	"scripts": {
-		"build": "tsdown src/main.ts --publint --unused --dts --format esm --format cjs",
-		"check": "bun run lint && bun run build && bun run test",
-		"lint": "biome format && oxlint && eslint . && tsc",
+		"build": "tsdown src/main.ts --format esm --format cjs --dts --publint --unused",
+		"check": "lint && bun run build && bun run test",
 		"test": "npm run test:vitest && bun test --coverage",
 		"test:vitest": "vitest run --no-file-parallelism"
 	},

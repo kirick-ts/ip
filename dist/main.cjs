@@ -54,8 +54,8 @@ var IP = class {
 		else throw new TypeError(`Invalid IP address type (received "${typeof value}")`);
 		if (this.#address6.subnetMask !== 128) throw new TypeError("IP address cannot have a subnet mask.");
 	}
-	/** @deprecated This property is for internal use only. */
-	get address6() {
+	/** @internal */
+	get _address6() {
 		return this.#address6;
 	}
 	/** Checks if current IP address is IPv4. */
@@ -89,7 +89,7 @@ var IP = class {
 	* @param ip IP address to check equality.
 	*/
 	equals(ip) {
-		return this.#address6.isInSubnet(ip.address6);
+		return this.#address6.isInSubnet(ip.#address6);
 	}
 	/** Returns IP address as string. */
 	toString() {
@@ -129,15 +129,12 @@ var CIDR = class {
 	ip_end;
 	mask;
 	constructor(arg0, mask) {
-		if (arg0 instanceof IP) {
-			this.#address6 = fromString(`${arg0.toString()}/${mask}`);
-			this.ip = arg0;
-			this.mask = mask;
-		} else if (typeof arg0 === "string") {
+		if (typeof arg0 === "string") {
 			this.#address6 = fromString(arg0);
 			this.mask = this.#address6.subnetMask - (isAddress4(this.#address6) ? 96 : 0);
 		} else {
-			this.#address6 = fromBuffer(arg0);
+			this.ip = arg0 instanceof IP ? arg0 : new IP(arg0);
+			this.#address6 = fromString(`${this.ip.toString()}/${mask}`);
 			this.mask = mask;
 		}
 		this.ip ??= new IP(this.#address6.correctForm());
@@ -149,7 +146,7 @@ var CIDR = class {
 	* @param ip IP address to check.
 	*/
 	includes(ip) {
-		return ip.address6.isInSubnet(this.#address6);
+		return ip._address6.isInSubnet(this.#address6);
 	}
 	/** Returns IP addCIDRress as string. */
 	toString() {
